@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PyScript Test</title>
+
+<link rel="stylesheet" href="./pagedesign.css">
+
+<link rel="stylesheet" href="https://pyscript.net/releases/2024.10.1/core.css">
+<script type="module" src="https://pyscript.net/releases/2024.10.1/core.js"></script>
+
+
+
+
+<py-config>
+
+
+
+[[fetch]]
+    files = ["./Knowledge_Base.py", "./Engine.py", "./.env"]
+
+
+
+</py-config>
+
+</head>
+
+
+
+<body>
+   
+<script type="py" src="./Engine.py"></script>
+
+<h1 class = "primary">Welcome To Your Virtual Fitness Coach</h1>
+    <div id="first_section" class = "program-card">
+
+        <div id="Question"></div>
+
+
+        <div class="button-group">
+            <button id="yes-btn" class="primary-btn">Yes</button>
+            <button id="no-btn" class="primary-btn">No</button>
+        </div>
+
+        <hr>
+
+        <h2 id = "Output" class="secondary">Output</h2>
+        <div id="Output"></div>
+
+    </div>
+
+
+
+    <h1 class = "primary" >Virtual help</h1>
+
+    <div id="second_section" class = "program-card">
+        
+
+    <div class = "program-subcard" id = "Solution">
+        <h2 id="solution-header" class="secondary">Best Solution To Your Problem</h2>
+            <hr>
+        
+        <div id="Answer_Solution"></div>
+         
+    </div>
+
+
+
+
+
+
+
+<div class = "program-subcard">
+
+        <h2 id="vitamin-header" class="secondary">Vitamin Plan Just For You</h2>
+            <hr>
+
+
+            <div id="Vitamin_suggestion"></div>
+
+
+            <template id="vitamin-row-template">
+
+                <div class="vitamin-row">
+
+                    <img id="vitamin-image" src="" alt="Vitamin image">
+
+                    <div class="vitamin-text">
+
+                        <h3 id="vitamin-name"></h3>
+                        <p id="vitamin-output"></p>
+
+                    </div>
+                    
+                </div>
+
+
+            </template>
+
+
+
+    </div>  
+
+
+
+    </div>
+
+
+
+
+
+</body>
+</html>
