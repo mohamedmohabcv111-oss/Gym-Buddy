@@ -17,44 +17,45 @@ async def engine():
     Answer_solution = document.querySelector('#Answer_Solution')
     Vitamin_suggestion = document.querySelector('#Vitamin_suggestion') 
     vitamin_template = document.querySelector("#vitamin-row-template")
-    name_sol = document.querySelector("#Solution-name")
+    count_span = document.querySelector('#count')
 
+    keys = list(GYM_KB.keys())
+    remaining_count = len(keys)
+    count_span.innerText = remaining_count
 
     for key, description in GYM_KB.items():
         
         Question.innerText = f"Do you experience {description}?"
 
-        
-        future = asyncio.Future()
-
-        def on_yes(e):
-            if not future.done():
-                future.set_result(True)
-
-        def on_no(e):
-            if not future.done():
-                future.set_result(False)
-
-      
-        yes_proxy = create_proxy(on_yes)
-        no_proxy = create_proxy(on_no)
-
-        
-        yes_btn.addEventListener("click", yes_proxy)
-        no_btn.addEventListener("click", no_proxy)
-
        
-        answer = await future
+        click_future = asyncio.Future()
+
+        def handle_click(event):
+            
+            if not click_future.done():
+                click_future.set_result(event.target.id)
 
         
-        yes_btn.removeEventListener("click", yes_proxy)
-        no_btn.removeEventListener("click", no_proxy)
-        yes_proxy.destroy()
-        no_proxy.destroy()
+        click_proxy = create_proxy(handle_click)
+        yes_btn.addEventListener("click", click_proxy)
+        no_btn.addEventListener("click", click_proxy)
 
         
-        if answer:
+        clicked_button_id = await click_future
+
+        
+        yes_btn.removeEventListener("click", click_proxy)
+        no_btn.removeEventListener("click", click_proxy)
+        click_proxy.destroy() 
+
+        
+        if clicked_button_id == "yes-btn":
             user_facts.append(key)
+            
+        
+            
+        remaining_count -= 1
+        count_span.innerText = remaining_count
 
    
     Question.innerText = "You Are Suffering From"
