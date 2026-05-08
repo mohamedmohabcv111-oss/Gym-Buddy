@@ -9,7 +9,6 @@ GYM_KB = {
     "Poor Pump": "muscles feeling flat and soft even during a workout",
     "Sleepy": "difficulty staying awake or focusing during the day",
 
-   
     "Heavy Lifting": "maxing out your weights on a regular basis",
     "Eccentric Load": "slowing down the lowering part of your lifts",
     "Sweating": "soaking through your clothes every single workout",

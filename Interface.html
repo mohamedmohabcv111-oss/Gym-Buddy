@@ -9,19 +9,14 @@
 
 <link rel="stylesheet" href="https://pyscript.net/releases/2024.10.1/core.css">
 <script type="module" src="https://pyscript.net/releases/2024.10.1/core.js"></script>
-
+<script src="https://kit.fontawesome.com/b9a020078f.js" crossorigin="anonymous"></script>
 
 
 
 <py-config>
-
-
-
-[[fetch]]
-    files = ["./Knowledge_Base.py", "./Engine.py", "./.env"]
-
-
-
+    packages = ["pyodide-http"] 
+    [[fetch]]
+    files = ["./Knowledge_Base.py", "./Engine.py"]
 </py-config>
 
 </head>
@@ -32,7 +27,31 @@
    
 <script type="py" src="./Engine.py"></script>
 
-<h1 class = "primary">Welcome To Your Virtual Fitness Coach</h1>
+
+<button id="chatbot" type="button"><i class="fa-solid fa-hippo"></i></button>
+
+<div id="chatbot-overlay"></div>
+
+<div id="chatbot-card">
+
+  <h2 class="primary" style="margin-bottom: 0;">Gym Buddy AI</h2>
+
+  <div id="chat-messages">
+    <div class="msg ai">
+      <div class="bubble">Hey! Tell me what you've been feeling lately</div>
+    </div>
+  </div>
+
+  <div class="chat-input-area">
+    <textarea id="chat-input" placeholder="Describe what you're feeling..." rows="1"></textarea>
+    <button class="send-btn" id="send-btn">
+      <i class="fa-solid fa-paper-plane"></i>
+    </button>
+  </div>
+
+</div>
+
+<h1 class = "primary">Welcome To Your Virtual Gym Buddy</h1>
     <div id="first_section" class = "program-card">
 
         <div id="Question"></div>
@@ -55,7 +74,7 @@
 
 
 
-    <h1 class = "primary" >Virtual help</h1>
+    <h1 class = "primary" >Gym Buddy help</h1>
 
     <div id="second_section" class = "program-card">
         
@@ -110,7 +129,97 @@
 
     </div>
 
+   <script>
+  const chatbotBtn     = document.getElementById('chatbot');
+  const chatbotCard    = document.getElementById('chatbot-card');
+  const chatbotOverlay = document.getElementById('chatbot-overlay');
+  const chatMessages   = document.getElementById('chat-messages');
+  const chatInput      = document.getElementById('chat-input');
+  const sendBtn        = document.getElementById('send-btn');
 
+  function toggleChatbot() {
+    chatbotCard.classList.toggle('active');
+    chatbotOverlay.classList.toggle('active');
+  }
+
+  chatbotBtn.addEventListener('click', toggleChatbot);
+  chatbotOverlay.addEventListener('click', toggleChatbot);
+
+  function appendMessage(text, sender) {
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('msg', sender);
+    
+    const bubble = document.createElement('div');
+    bubble.classList.add('bubble');
+    bubble.style.whiteSpace = 'pre-wrap';
+    bubble.textContent = text;
+    
+    msgDiv.appendChild(bubble);
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  async function sendMessage() {
+    const text = chatInput.value.trim();
+    if (!text) return;
+
+    appendMessage(text, 'user');
+    chatInput.value = '';
+
+    const loadingId = 'loading-' + Date.now();
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('msg', 'ai');
+    msgDiv.id = loadingId;
+    const bubble = document.createElement('div');
+    bubble.classList.add('bubble');
+    bubble.textContent = 'Thinking...';
+    msgDiv.appendChild(bubble);
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: text })
+      });
+      
+      const rawText = await response.text();
+      const loadingEl = document.getElementById(loadingId);
+      if (loadingEl) loadingEl.remove();
+
+      let data;
+      try {
+        data = JSON.parse(rawText);
+      } catch (e) {
+        console.error("Non-JSON response from server:", rawText);
+        appendMessage('Backend Error: Server returned HTML or crashed. Check terminal!', 'ai');
+        return;
+      }
+
+      if (response.ok && data.reply) {
+        appendMessage(data.reply, 'ai');
+      } else {
+        appendMessage(data.error || 'Sorry, I encountered an error.', 'ai');
+      }
+    } catch (error) {
+      const loadingEl = document.getElementById(loadingId);
+      if (loadingEl) loadingEl.remove();
+      appendMessage('Connection error. Open Browser Console (F12) to see details.', 'ai');
+      console.error('Chat error:', error);
+    }
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+</script>
 
 
 </body>

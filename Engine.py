@@ -1,10 +1,45 @@
 import asyncio
+import json
 from pyscript import document
+from pyodide.http import pyfetch
 from pyodide.ffi import create_proxy
-from Knowledge_Base import GYM_KB, EXPRIENCING,SOLUTIONS,VITAMINS
+from Knowledge_Base import GYM_KB, EXPRIENCING, SOLUTIONS, VITAMINS
 
+# --- CHATBOT LOGIC ---
 
+async def call_chat_api(event):
+    input_box = document.querySelector("#chat-input")
+    user_text = input_box.value
+    if not user_text:
+        return
 
+    append_to_chat(user_text, "user")
+    input_box.value = ""
+
+    try:
+        # Note the relative URL - this works because Vercel routes /api/chat
+        response = await pyfetch(
+            url="/api/chat",
+            method="POST",
+            headers={"Content-Type": "application/json"},
+            body=json.dumps({"message": user_text})
+        )
+        
+        if response.ok:
+            data = await response.json()
+            append_to_chat(data["reply"], "ai")
+        else:
+            append_to_chat("Error: The AI coach is taking a rest (Server Error).", "ai")
+    except Exception as e:
+        append_to_chat(f"Connection failed: {str(e)}", "ai")
+
+def append_to_chat(text, role):
+    msg_container = document.querySelector("#chat-messages")
+    bubble = document.createElement("div")
+    bubble.className = f"msg {role}"
+    bubble.innerHTML = f'<div class="bubble">{text}</div>'
+    msg_container.appendChild(bubble)
+    msg_container.scrollTop = msg_container.scrollHeight
         
 async def engine():
     user_facts = []
@@ -31,7 +66,6 @@ async def engine():
         click_future = asyncio.Future()
 
         def handle_click(event):
-            
             if not click_future.done():
                 click_future.set_result(event.target.id)
 
@@ -41,7 +75,7 @@ async def engine():
         no_btn.addEventListener("click", click_proxy)
 
         
-        clicked_button_id = await click_future
+        clicked_button_id = await click_future 
 
         
         yes_btn.removeEventListener("click", click_proxy)
