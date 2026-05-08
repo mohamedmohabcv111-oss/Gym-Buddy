@@ -1,14 +1,13 @@
 from http.server import BaseHTTPRequestHandler
 import json
 import os
+import urllib.request
 
 try:
     from dotenv import load_dotenv
     load_dotenv()
 except ImportError:
     pass
-
-from google import genai
 
 class handler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
@@ -25,23 +24,32 @@ class handler(BaseHTTPRequestHandler):
             request_json = json.loads(post_data.decode('utf-8'))
             user_message = request_json.get("message", "")
 
-            api_key = os.environ.get("GEMINI_API_KEY")
+            api_key = os.environ.get("GROQ_API_KEY")
             if not api_key:
-                raise ValueError("GEMINI_API_KEY is missing from environment variables.")
+                raise ValueError("GROQ_API_KEY is missing from environment variables.")
             
-            client = genai.Client(api_key=api_key)
+            url = "https://api.groq.com/openai/v1/chat/completions"
+            headers = {
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            }
+            data = {
+                "model": "llama3-8b-8192",
+                "messages": [{"role": "user", "content": user_message}]
+            }
             
-            response = client.models.generate_content(
-                model="gemini-2.0-flash",
-                contents=user_message
-            )
+            req = urllib.request.Request(url, data=json.dumps(data).encode('utf-8'), headers=headers)
+            with urllib.request.urlopen(req) as response:
+                response_json = json.loads(response.read().decode('utf-8'))
+            
+            reply_text = response_json["choices"][0]["message"]["content"]
 
             self.send_response(200)
             self.send_header('Access-Control-Allow-Origin', '*')
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             
-            response_data = {"reply": response.text}
+            response_data = {"reply": reply_text}
             self.wfile.write(json.dumps(response_data).encode('utf-8'))
             
         except Exception as e:
