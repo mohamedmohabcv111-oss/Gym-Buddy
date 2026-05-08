@@ -35,7 +35,7 @@ class handler(BaseHTTPRequestHandler):
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
             }
             data = {
-                "model": "llama3-8b-8192",
+                "model": "llama-3.1-8b-instant",
                 "messages": [{"role": "user", "content": user_message}]
             }
             
@@ -52,6 +52,16 @@ class handler(BaseHTTPRequestHandler):
             
             response_data = {"reply": reply_text}
             self.wfile.write(json.dumps(response_data).encode('utf-8'))
+            
+        except urllib.error.HTTPError as e:
+            self.send_response(500)
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            
+            error_body = e.read().decode('utf-8')
+            error_data = {"error": f"Groq API Error: {error_body}"}
+            self.wfile.write(json.dumps(error_data).encode('utf-8'))
             
         except Exception as e:
             self.send_response(500)
