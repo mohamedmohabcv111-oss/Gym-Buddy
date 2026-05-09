@@ -5,7 +5,7 @@ from pyodide.http import pyfetch
 from pyodide.ffi import create_proxy
 from Knowledge_Base import GYM_KB, EXPRIENCING, SOLUTIONS, VITAMINS
 
-# --- CHATBOT LOGIC ---
+
 
 async def call_chat_api(event):
     input_box = document.querySelector("#chat-input")
@@ -17,7 +17,7 @@ async def call_chat_api(event):
     input_box.value = ""
 
     try:
-        # Note the relative URL - this works because Vercel routes /api/chat
+       
         response = await pyfetch(
             url="/api/chat",
             method="POST",
