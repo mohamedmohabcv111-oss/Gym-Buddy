@@ -964,7 +964,7 @@ div#Vitamin_suggestion:hover {
   }
   
   #chatbot-card {
-    padding: 24px;
+    padding: 24px 24px 96px 24px;
     height: 90vh;
     width: 100%;
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
