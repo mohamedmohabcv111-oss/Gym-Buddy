@@ -17,7 +17,7 @@ async def call_chat_api(event):
     input_box.value = ""
 
     try:
-       
+        
         response = await pyfetch(
             url="/api/chat",
             method="POST",
